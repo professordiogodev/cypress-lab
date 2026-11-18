@@ -1,0 +1,20 @@
+{
+  "name": "cypress-lab",
+  "version": "1.0.0",
+  "description": "Lab prático de testes E2E com Cypress",
+  "scripts": {
+    "start": "http-server app -p 8080 -c-1 --silent",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run --browser chrome --pass-with-no-tests",
+    "test:e2e": "start-server-and-test start http://localhost:8080 cy:run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "cypress": "^16.3.0",
+    "http-server": "^14.1.1",
+    "start-server-and-test": "^3.0.13"
+  }
+}

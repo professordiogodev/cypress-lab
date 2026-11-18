@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <title>TaskBoard – Login</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="card">
+    <h1>TaskBoard</h1>
+    <form id="login-form" data-cy="login-form">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" data-cy="email" placeholder="ana@empresa.pt">
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" data-cy="password">
+
+      <button type="submit" class="btn btn-primary" data-cy="login-submit">Entrar</button>
+      <p class="error" data-cy="login-error" hidden></p>
+    </form>
+    <p class="hint">Credenciais de teste: <code>ana@empresa.pt</code> / <code>cypress123</code></p>
+  </main>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const error = document.querySelector('[data-cy="login-error"]');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      error.hidden = true;
+      const email = form.email.value.trim();
+      const password = form.password.value;
+
+      // Simula um pedido ao servidor (demora ~800ms)
+      await new Promise((r) => setTimeout(r, 800));
+
+      if (email === 'ana@empresa.pt' && password === 'cypress123') {
+        localStorage.setItem('user', email);
+        window.location.href = '/tasks.html';
+      } else {
+        error.textContent = 'Email ou password inválidos';
+        error.hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>

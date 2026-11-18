@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <title>TaskBoard – Tarefas</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="card">
+    <header class="row">
+      <h1>As minhas tarefas</h1>
+      <span data-cy="welcome"></span>
+    </header>
+
+    <form id="new-task" class="row" data-cy="new-task-form">
+      <input name="title" data-cy="new-task-input" placeholder="O que há para fazer?">
+      <button type="submit" class="btn btn-primary" data-cy="add-task">Adicionar</button>
+    </form>
+
+    <p data-cy="loading">A carregar tarefas…</p>
+    <p class="error" data-cy="tasks-error" hidden>Não foi possível carregar as tarefas.</p>
+    <ul data-cy="task-list"></ul>
+    <p data-cy="task-count"></p>
+  </main>
+
+  <script>
+    const user = localStorage.getItem('user');
+    if (!user) window.location.href = '/index.html';
+    document.querySelector('[data-cy="welcome"]').textContent = `Olá, ${user}`;
+
+    const list = document.querySelector('[data-cy="task-list"]');
+    const count = document.querySelector('[data-cy="task-count"]');
+    const loading = document.querySelector('[data-cy="loading"]');
+    const errorMsg = document.querySelector('[data-cy="tasks-error"]');
+
+    function render(tasks) {
+      list.innerHTML = '';
+      tasks.forEach((t) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-cy', 'task-item');
+        li.className = t.done ? 'done' : '';
+        li.innerHTML = `<label><input type="checkbox" data-cy="task-toggle" ${t.done ? 'checked' : ''}> <span>${t.title}</span></label>`;
+        li.querySelector('input').addEventListener('change', (e) => {
+          t.done = e.target.checked;
+          li.className = t.done ? 'done' : '';
+          updateCount();
+        });
+        list.appendChild(li);
+      });
+      updateCount();
+    }
+
+    function updateCount() {
+      const pending = list.querySelectorAll('li:not(.done)').length;
+      count.textContent = `${pending} tarefa(s) por fazer`;
+    }
+
+    let tasks = [];
+
+    // Carrega as tarefas da "API" com um atraso artificial de 1.5s
+    setTimeout(() => {
+      fetch('/api/tasks.json')
+        .then((res) => {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then((data) => {
+          tasks = data;
+          render(tasks);
+        })
+        .catch(() => { errorMsg.hidden = false; })
+        .finally(() => { loading.hidden = true; });
+    }, 1500);
+
+    document.getElementById('new-task').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = e.target.title;
+      const title = input.value.trim();
+      if (!title) return;
+      tasks.push({ title, done: false });
+      render(tasks);
+      input.value = '';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+name: Testes E2E
+
+on:
+  pull_request:
+  push:
+    branches: [main, solucoes]
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter o código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Arrancar a app e correr os testes
+        run: npm run test:e2e
+
+      - name: Guardar screenshots se algo falhar
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
